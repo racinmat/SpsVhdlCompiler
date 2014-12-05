@@ -9,7 +9,14 @@ public class Main {
         FileHandler fileHandler = new FileHandler(sourceCodeName, hexOutputName);
         String[] inputLines = fileHandler.loadSourceCode();
         Parser parser = new Parser();
-        parser.parse(inputLines);
+        int[] compiledCode = parser.parse(inputLines);
+        for (int i : compiledCode) {
+            System.out.println(i);
+        }
+        String[] hexOutput = parser.convertToHex(compiledCode);
+        for (String s : hexOutput) {
+            System.out.println(s);
+        }
     }
 
 

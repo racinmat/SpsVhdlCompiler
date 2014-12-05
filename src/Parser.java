@@ -5,8 +5,6 @@ import java.text.ParseException;
  */
 public class Parser {
 
-    private String hexOutput;
-
     public Parser(){
     }
 
@@ -25,12 +23,12 @@ public class Parser {
                 return 10000;
             case "SMALL":
                 return 20000;
-            case "WAIT":
-                return 30000;
             case "RESTART":
-                return 40000;
+                return 30000;
             default:
-                if (sourceCodeLine.startsWith("DIR ")) {
+                if (sourceCodeLine.startsWith("WAIT ")) {
+                    return parseWait(sourceCodeLine);
+                } else if (sourceCodeLine.startsWith("DIR ")) {
                     return parseDir(sourceCodeLine);
                 } else if (sourceCodeLine.startsWith("SPEED ")) {
                     return parseSpeed(sourceCodeLine);
@@ -41,54 +39,75 @@ public class Parser {
         }
     }
 
+    private int parseWait(String input) throws ParseException {
+        String arguments = input.substring("WAIT ".length());
+        int[] argumentsArray = getArguments(arguments, 1);
+        int arg1 = argumentsArray[0];
+        if (arg1 < 0) {
+            throw new ParseException("wrong first argument of WAIT command, must be zero or positive", input.indexOf(arg1));
+        }
+        return 40000+arg1;
+    }
+
     private int parseDir(String input) throws ParseException {
         String arguments = input.substring("DIR ".length());
-        String[] argumentsArray = arguments.split(", ");            //oddělovač argumentů je ", "
-        if (argumentsArray.length != 2) {
-            throw new ParseException("not two arguments", "DIR ".length());
-        }
-        int arg1 = Integer.parseInt(argumentsArray[0]);
+        int[] argumentsArray = getArguments(arguments, 2);
+        int arg1 = argumentsArray[0];
         if (arg1 != 0 && arg1 != 1) {
             throw new ParseException("wrong first argument of DIR command, must be 0 or 1", input.indexOf(arg1));
         }
-        int arg2 = Integer.parseInt(argumentsArray[1]);
+        int arg2 = argumentsArray[1];
         if (arg2 != 0 && arg2 != 1) {
             throw new ParseException("wrong second argument of DIR command, must be 0 or 1", input.indexOf(arg2));
         }
-        System.out.println(arg1);
-        System.out.println(arg2);
         return 50000+arg1*100+arg2;
     }
 
     private int parseSpeed(String input) throws ParseException {
         String arguments = input.substring("SPEED ".length());
-        String[] argumentsArray = arguments.split(", ");            //oddělovač argumentů je ", "
-        int arg1 = Integer.parseInt(argumentsArray[0]);
+        int[] argumentsArray = getArguments(arguments, 2);
+        int arg1 = argumentsArray[0];
         if (arg1 < 1 || arg1 > 16) {
             throw new ParseException("wrong first argument of SPEED command, must be between 1 and 16", input.indexOf(arg1));
         }
-        int arg2 = Integer.parseInt(argumentsArray[1]);
+        int arg2 = argumentsArray[1];
         if (arg2 < 1 || arg2 > 16) {
             throw new ParseException("wrong second argument of SPEED command, must be between 1 and 16", input.indexOf(arg2));
         }
         return 60000+arg1*100+arg2;
     }
 
-    private int parseLim(String input) {
+    private int parseLim(String input) throws ParseException {
         String arguments = input.substring("LIM ".length());
-        String[] argumentsArray = arguments.split(", ");            //oddělovač argumentů je ", "
-        int arg1 = Integer.parseInt(argumentsArray[0]);
-        return 70000;
+        int[] argumentsArray = getArguments(arguments, 2);
+        int arg1 = argumentsArray[0];
+        if (arg1 < 0 || arg1 > 16) {
+            throw new ParseException("wrong first argument of LIM command, must be between 0 and 16", input.indexOf(arg1));
+        }
+        int arg2 = argumentsArray[1];
+        if (arg2 < 0 || arg2 > 16) {
+            throw new ParseException("wrong second argument of LIM command, must be between 0 and 16", input.indexOf(arg2));
+        }
+        return 70000+arg1*100+arg2;
     }
 
-    private int[] getArguments(String stringArguments) {
+    private int[] getArguments(String stringArguments, int numberOfExpectedArguments) throws ParseException {
         String[] argumentsArray = stringArguments.split(", ");            //oddělovač argumentů je ", "
         int[] arguments = new int[argumentsArray.length];
+        if (arguments.length != numberOfExpectedArguments) {
+            throw new ParseException("wrong number of arguments, expected "+numberOfExpectedArguments+", got "+arguments.length+".", 0);
+        }
         for (int i = 0; i < argumentsArray.length; i++) {
             arguments[i] = Integer.parseInt(argumentsArray[i]);
         }
         return arguments;
     }
 
-
+    public String[] convertToHex(int[] compiledCode) {
+        String[] hexOutput = new String[compiledCode.length];
+        for (int i = 0; i < compiledCode.length; i++) {
+            hexOutput[i] = Integer.toHexString(compiledCode[i]);
+        }
+        return hexOutput;
+    }
 }
