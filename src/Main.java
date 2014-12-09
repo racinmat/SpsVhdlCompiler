@@ -1,11 +1,8 @@
-import java.io.IOException;
-import java.text.ParseException;
-
 public class Main {
 
-    public static void main(String[] args) throws IOException, ParseException {
+    public static void main(String[] args) throws Exception {
         String sourceCodeName = "sourceCode.azathoth";
-        String hexOutputName = "";
+        String hexOutputName = "compiledCode.hex";
         FileHandler fileHandler = new FileHandler(sourceCodeName, hexOutputName);
         String[] inputLines = fileHandler.loadSourceCode();
         Parser parser = new Parser();
@@ -17,7 +14,6 @@ public class Main {
         for (String s : hexOutput) {
             System.out.println(s);
         }
+        fileHandler.saveHexOutput(compiledCode);
     }
-
-
 }
