@@ -7,11 +7,11 @@ import java.text.ParseException;
  * FS:          1
  * SMALL:       2
  * RESTART:     3
- * WAIT:      1XX
- * DIR:     1XXXX
- * SPEED:   2XXXX
- * LIM:     3XXXX
- *
+ * DIR:       1XY
+ * WAIT:     1XXX
+ * SPEED:   1XXYY
+ * LIM:     2XXYY
+ *  xx-1. argument, yy-2. argument
  */
 public class Parser {
 
@@ -53,10 +53,10 @@ public class Parser {
         String arguments = input.substring("WAIT ".length());
         int[] argumentsArray = getArguments(arguments, 1);
         int arg1 = argumentsArray[0];
-        if (arg1 < 0) {
-            throw new ParseException("wrong first argument of WAIT command, must be zero or positive", input.indexOf(arg1));
+        if (arg1 < 0 || arg1 > 255) {
+            throw new ParseException("wrong first argument of WAIT command, must be from zero to 255", input.indexOf(arg1));
         }
-        return 100+arg1;
+        return 1000+arg1;
     }
 
     private int parseDir(String input) throws ParseException {
@@ -70,35 +70,35 @@ public class Parser {
         if (arg2 != 0 && arg2 != 1) {
             throw new ParseException("wrong second argument of DIR command, must be 0 or 1", input.indexOf(arg2));
         }
-        return 10000+arg1*100+arg2;
+        return 100+arg1*10+arg2;
     }
 
     private int parseSpeed(String input) throws ParseException {
         String arguments = input.substring("SPEED ".length());
         int[] argumentsArray = getArguments(arguments, 2);
         int arg1 = argumentsArray[0];
-        if (arg1 < 1 || arg1 > 16) {
-            throw new ParseException("wrong first argument of SPEED command, must be between 1 and 16", input.indexOf(arg1));
+        if (arg1 < 1 || arg1 > 15) {
+            throw new ParseException("wrong first argument of SPEED command, must be between 1 and 15", input.indexOf(arg1));
         }
         int arg2 = argumentsArray[1];
-        if (arg2 < 1 || arg2 > 16) {
-            throw new ParseException("wrong second argument of SPEED command, must be between 1 and 16", input.indexOf(arg2));
+        if (arg2 < 1 || arg2 > 15) {
+            throw new ParseException("wrong second argument of SPEED command, must be between 1 and 15", input.indexOf(arg2));
         }
-        return 20000+arg1*100+arg2;
+        return 10000+arg1*100+arg2;
     }
 
     private int parseLim(String input) throws ParseException {
         String arguments = input.substring("LIM ".length());
         int[] argumentsArray = getArguments(arguments, 2);
         int arg1 = argumentsArray[0];
-        if (arg1 < 0 || arg1 > 16) {
-            throw new ParseException("wrong first argument of LIM command, must be between 0 and 16", input.indexOf(arg1));
+        if (arg1 < 0 || arg1 > 15) {
+            throw new ParseException("wrong first argument of LIM command, must be between 0 and 15", input.indexOf(arg1));
         }
         int arg2 = argumentsArray[1];
-        if (arg2 < 0 || arg2 > 16) {
-            throw new ParseException("wrong second argument of LIM command, must be between 0 and 16", input.indexOf(arg2));
+        if (arg2 < 0 || arg2 > 15) {
+            throw new ParseException("wrong second argument of LIM command, must be between 0 and 15", input.indexOf(arg2));
         }
-        return 30000+arg1*100+arg2;
+        return 20000+arg1*100+arg2;
     }
 
     private int[] getArguments(String stringArguments, int numberOfExpectedArguments) throws ParseException {
